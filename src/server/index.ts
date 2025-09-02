@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
+import path from "path";
 import http from "http";
 import cors from "cors";
 import { Server } from "socket.io";
@@ -9,6 +10,15 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Resolve public folder to work both with ts-node and compiled dist
+const publicDir = path.resolve(__dirname, "../../public");
+app.use(express.static(publicDir));
+
+// Serve index.html on root to avoid "Cannot GET /"
+app.get("/", (_req: Request, res: Response) => {
+  res.sendFile(path.join(publicDir, "index.html"));
+});
 
 const httpServer = http.createServer(app);
 
@@ -72,5 +82,3 @@ httpServer.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log(`Socket reminder server listening on http://localhost:${PORT}`);
 });
-
-

@@ -6,6 +6,7 @@ dotenv.config();
 const serverUrl = process.env.SERVER_URL || "http://localhost:4000";
 const userId = process.env.USER_ID || `user-${Math.random().toString(36).slice(2, 8)}`;
 
+
 const socket: Socket = io(serverUrl, {
   transports: ["websocket"],
   query: { userId },
@@ -30,5 +31,3 @@ socket.on("connect_error", (err) => {
   // eslint-disable-next-line no-console
   console.error("Connection error:", err.message);
 });
-
-
