@@ -1,4 +1,4 @@
-
+## Enviar notificacion
 POST http://localhost:4000/api/reminders HTTP/1.1
 content-type: application/json
 
@@ -7,3 +7,43 @@ content-type: application/json
     "title":"Recordatorio",
     "message":"ola k ase"
 }
+
+
+
+
+
+
+### register
+POST http://localhost:4000/api/auth/register
+content-type: application/json
+
+{
+    "name":"Juan",
+    "username":"juan123",
+    "password":"123456"
+}
+
+
+
+### check session
+GET http://localhost:4000/api/auth/me HTTP/1.1
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMzNiYzA4My1mMjc0LTRmNjktOTVkMC02OTUwN2UwMDhlM2IiLCJ1c2VybmFtZSI6Imp1YW4xMjMiLCJuYW1lIjoiSnVhbiIsImlhdCI6MTc1Njg0MDU3NywiZXhwIjoxNzU3NDQ1Mzc3fQ.tM6RwnzO7GN4Dhvi5CzimYccQGeKH2IXt1q28GCU0t4
+
+
+
+
+#### login
+POST http://localhost:4000/api/auth/login HTTP/1.1
+content-type: application/json
+
+{
+    "username": "juan123",
+    "password": "123456"
+}
+
+
+
+
+### logout
+POST http://localhost:4000/api/auth/logout HTTP/1.1
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMzNiYzA4My1mMjc0LTRmNjktOTVkMC02OTUwN2UwMDhlM2IiLCJ1c2VybmFtZSI6Imp1YW4xMjMiLCJuYW1lIjoiSnVhbiIsImlhdCI6MTc1Njg0MDU3NywiZXhwIjoxNzU3NDQ1Mzc3fQ.tM6RwnzO7GN4Dhvi5CzimYccQGeKH2IXt1q28GCU0t4

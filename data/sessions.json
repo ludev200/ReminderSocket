@@ -1,0 +1,19 @@
+{
+  "sessions": [
+    {
+      "id": "luisito",
+      "username": "luisito",
+      "createdAt": 1756823234068
+    },
+    {
+      "id": "rikito",
+      "username": "rikito",
+      "createdAt": 1756823294977
+    },
+    {
+      "id": "vindisel",
+      "username": "vindisel",
+      "createdAt": 1756825425338
+    }
+  ]
+}
