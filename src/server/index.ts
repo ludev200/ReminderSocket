@@ -3,8 +3,9 @@ import express, { Request, Response } from "express";
 import path from "path";
 import http from "http";
 import cors from "cors";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { testConnection } from "../config/database";
+import { AuthService } from "../services/AuthService";
 import authRoutes from "../routes/auth";
 import { createReminderRoutes } from "../routes/reminders";
 
@@ -26,15 +27,46 @@ const io = new Server(httpServer, {
   },
 });
 
-// Socket.IO connection handling
-io.on("connection", (socket) => {
-  const { userId } = socket.handshake.query as { userId?: string };
-  if (userId) {
-    socket.join(`user:${userId}`);
+// Socket.IO connection handling with JWT validation
+io.use(async (socket: Socket, next) => {
+  try {
+    const token = socket.handshake.auth.token || socket.handshake.query.token;
+    
+    if (!token) {
+      return next(new Error('Authentication token required'));
+    }
+
+    // Validate JWT token
+    const decoded = AuthService.validateJWTOnly(token as string);
+    if (!decoded) {
+      return next(new Error('Invalid or expired token'));
+    }
+
+    // Attach user info to socket
+    (socket as any).user = {
+      id: decoded.sub,
+      username: decoded.username,
+      name: decoded.name
+    };
+
+    next();
+  } catch (error) {
+    next(new Error('Authentication failed'));
   }
+});
+
+io.on("connection", (socket) => {
+  const user = (socket as any).user;
+  console.log(`User ${user.username} (${user.name}) connected with socket ID: ${socket.id}`);
+  
+  // Join user to their personal room
+  socket.join(`user:${user.id}`);
+  
+  // Join user to their username room (for backward compatibility)
+  socket.join(`user:${user.username}`);
 
   socket.on("disconnect", () => {
-    // no-op
+    console.log(`User ${user.username} disconnected`);
   });
 });
 
