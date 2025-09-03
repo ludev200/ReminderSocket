@@ -1,13 +1,21 @@
-## Enviar notificacion
-POST http://localhost:4000/api/reminders HTTP/1.1
+### Enviar notificacion
+POST http://localhost:4000/api/reminders/broadcast HTTP/1.1
 content-type: application/json
 
 {
-    "title": "Anuncio General",
-    "message": "ola amijos",
-    "broadcast": true
+    "title": "xd",
+    "message": "no estuvo a la altura"
 }
 
+
+### to user
+POST http://localhost:4000/api/reminders/to/vindi HTTP/1.1
+content-type: application/json
+
+{
+    "title": "xd",
+    "message": "ola vin"
+}
 
 
 

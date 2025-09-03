@@ -14,11 +14,7 @@ export class AuthService {
     }
 
     // Generate JWT token
-    const token = jwt.sign(
-      { sub: user.id, username: user.username, name: user.name },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const token = this.generateToken(user);
 
     // Store session in database
     const expiresAt = new Date();
@@ -40,11 +36,7 @@ export class AuthService {
     const user = await UserModel.create(name, username, password);
 
     // Generate JWT token
-    const token = jwt.sign(
-      { sub: user.id, username: user.username, name: user.name },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const token = this.generateToken(user);
 
     // Store session in database
     const expiresAt = new Date();
@@ -53,6 +45,24 @@ export class AuthService {
     await SessionModel.create(user.id, token, expiresAt);
 
     return { token, user };
+  }
+
+  static generateToken(user: User): string {
+    return jwt.sign(
+      { 
+        sub: user.id, 
+        username: user.username, 
+        name: user.name,
+        email: user.email,
+        googleId: user.googleId
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+  }
+
+  static async createSession(userId: string, token: string, expiresAt: Date): Promise<void> {
+    await SessionModel.create(userId, token, expiresAt);
   }
 
   static async validateToken(token: string): Promise<User | null> {
@@ -73,14 +83,16 @@ export class AuthService {
     }
   }
 
-  static validateJWTOnly(token: string): { sub: string; username: string; name: string } | null {
+  static validateJWTOnly(token: string): { sub: string; username: string; name: string; email?: string; googleId?: string } | null {
     try {
       // Only verify JWT signature and expiration, no database lookup
       const decoded = jwt.verify(token, JWT_SECRET) as any;
       return {
         sub: decoded.sub,
         username: decoded.username,
-        name: decoded.name
+        name: decoded.name,
+        email: decoded.email,
+        googleId: decoded.googleId
       };
     } catch (error) {
       return null;

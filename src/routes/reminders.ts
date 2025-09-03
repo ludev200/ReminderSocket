@@ -8,11 +8,11 @@ export function createReminderRoutes(io: Server) {
     title: string;
     message: string;
     at?: number;
-    broadcast?: boolean; // If true, send to all users
   };
 
-  router.post('/', (req: Request<unknown, unknown, ReminderPayload>, res: Response) => {
-    const { title, message, at, broadcast = false } = req.body || {};
+  // Broadcast route to send to all users
+  router.post('/broadcast', (req: Request<unknown, unknown, ReminderPayload>, res: Response) => {
+    const { title, message, at } = req.body || {};
     
     if (!title || !message) {
       return res.status(400).json({ error: 'title and message are required' });
@@ -22,19 +22,13 @@ export function createReminderRoutes(io: Server) {
       const event = 'reminder';
       const payload = { title, message, timestamp: Date.now() };
       
-      if (broadcast) {
-        // Send to all connected users
-        io.emit(event, payload);
-      } else {
-        // Send to specific user (extract from auth token)
-        // This would require middleware to extract user from JWT
-        // For now, we'll send to all users in the reminder room
-        io.emit(event, payload);
-      }
+      console.log(`📢 [BROADCAST] Enviando mensaje a todos los usuarios: "${title}" - ${message}`);
+      io.emit(event, payload);
     };
 
     if (typeof at === 'number' && at > Date.now()) {
       const delay = at - Date.now();
+      console.log(`⏰ [BROADCAST] Mensaje programado para enviarse en ${delay}ms: "${title}"`);
       setTimeout(emitReminder, delay);
       return res.json({ scheduledInMs: delay });
     }
@@ -43,7 +37,7 @@ export function createReminderRoutes(io: Server) {
     return res.json({ sent: true });
   });
 
-  // New endpoint to send reminder to specific user by ID
+  // Route to send reminder to specific user by ID
   router.post('/to/:userId', (req: Request, res: Response) => {
     const { userId } = req.params;
     const { title, message, at } = req.body || {};
@@ -56,12 +50,14 @@ export function createReminderRoutes(io: Server) {
       const event = 'reminder';
       const payload = { title, message, timestamp: Date.now() };
       
+      console.log(`👤 [USER:${userId}] Mensaje a usuario específico: "${title}" - ${message}`);
       // Send to specific user room
       io.to(`user:${userId}`).emit(event, payload);
     };
 
     if (typeof at === 'number' && at > Date.now()) {
       const delay = at - Date.now();
+      console.log(`⏰ [USER:${userId}] Mensaje programado para enviarse en ${delay}ms: "${title}"`);
       setTimeout(emitReminder, delay);
       return res.json({ scheduledInMs: delay });
     }

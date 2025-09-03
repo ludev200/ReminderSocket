@@ -4,15 +4,22 @@ import { io, Socket } from "socket.io-client";
 dotenv.config();
 
 const serverUrl = process.env.SERVER_URL || "http://localhost:4000";
-const username = process.env.USERNAME || "test-user";
-const password = process.env.PASSWORD || "123456";
 
 // Get token from command line args or environment
 const args = process.argv.slice(2);
 const tokenFromArgs = args.find(arg => arg.startsWith('--token='))?.split('=')[1];
-const tokenFromEnv = process.env.JWT_TOKEN;
+const usernameFromArgs = args.find(arg => arg.startsWith('--username='))?.split('=')[1];
+const passwordFromArgs = args.find(arg => arg.startsWith('--password='))?.split('=')[1];
+const tokenFromEnv = process.env.SESSION_TOKEN || process.env.JWT_TOKEN || process.env.TOKEN;
 
 const jwtToken = tokenFromArgs || tokenFromEnv;
+
+
+
+const username = usernameFromArgs || "test-user";
+const password = passwordFromArgs || "123456";
+
+
 
 async function loginAndConnect() {
   try {
@@ -72,7 +79,7 @@ async function loginAndConnect() {
     const socket: Socket = io(serverUrl, {
       transports: ["websocket"],
       auth: {
-        token: token
+        token
       }
     });
 
@@ -85,9 +92,9 @@ async function loginAndConnect() {
       console.log("1. Check if the token is valid and not expired");
       console.log("2. Try getting a new token with login");
     } else {
-      console.log("1. Set USERNAME and PASSWORD in your .env file");
+      console.log("1. Set USERNAME and PASSWORD as env vars or in .env");
       console.log("2. Or create a user first with: POST /api/auth/register");
-      console.log("3. Or provide a valid token: npm run dev:client -- --token=YOUR_TOKEN");
+      console.log("3. Or provide a valid token via env SESSION_TOKEN or --token=YOUR_TOKEN");
     }
     console.log("4. Check that the server is running");
     process.exit(1);
@@ -124,10 +131,10 @@ console.log("🚀 Starting authenticated Socket.IO client...");
 console.log(`🌐 Server: ${serverUrl}`);
 
 if (jwtToken) {
-  console.log(`🔑 Using provided token (skipping login)`);
+  console.log(`🔑 Using provided session token (skipping login)`);
 } else {
   console.log(`👤 Username: ${username}`);
-  console.log(`💡 Use --token=YOUR_TOKEN to skip login`);
+  console.log(`💡 Provide token with env SESSION_TOKEN or --token=YOUR_TOKEN to skip login`);
 }
 
 loginAndConnect();
