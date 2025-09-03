@@ -20,32 +20,6 @@ src/
 - MySQL server running
 - Node.js 16+
 
-## Setup
-
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-2. **Database setup:**
-   - Create MySQL database using `database.sql`
-   - Update `.env` with your MySQL credentials
-
-3. **Environment variables (.env):**
-   ```
-   PORT=4000
-   SERVER_URL=http://localhost:4000
-   USER_ID=test-1
-   JWT_SECRET=your-secret-key
-   
-   # MySQL Database
-   DB_HOST=localhost
-   DB_USER=root
-   DB_PASSWORD=your-password
-   DB_NAME=reminder_socket
-   DB_PORT=3306
-   ```
-
 ## Scripts
 
 - `npm run dev:server` – start the Socket.IO server with nodemon
