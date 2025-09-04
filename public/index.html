@@ -15,6 +15,44 @@
         </div>
       </header>
 
+      <section class="auth">
+        <h2>Autenticación</h2>
+        <div class="auth-grid">
+          <div class="card">
+            <h3>Registro</h3>
+            <label>
+              Nombre
+              <input id="regName" type="text" placeholder="Juan Pérez" />
+            </label>
+            <label>
+              Usuario
+              <input id="regUsername" type="text" placeholder="juan" />
+            </label>
+            <label>
+              Contraseña
+              <input id="regPassword" type="password" placeholder="******" />
+            </label>
+            <button id="registerBtn">Registrar</button>
+            <div class="small" id="registerResult"></div>
+          </div>
+          <div class="card">
+            <h3>Login</h3>
+            <label>
+              Usuario
+              <input id="loginUsername" type="text" placeholder="juan" />
+            </label>
+            <label>
+              Contraseña
+              <input id="loginPassword" type="password" placeholder="******" />
+            </label>
+            <button id="loginBtn">Iniciar sesión</button>
+            <button id="googleBtn" class="secondary">Iniciar sesión con Google</button>
+            <button id="logoutBtn" class="secondary">Cerrar sesión</button>
+            <div class="small" id="loginResult"></div>
+          </div>
+        </div>
+      </section>
+
       <section class="controls">
         <label>
           Server URL

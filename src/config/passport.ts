@@ -22,26 +22,29 @@ export function configurePassport() {
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID!,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:4000/auth/google/callback',
+    callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:4000/api/auth/google/callback',
     scope: ['profile', 'email']
   }, async (accessToken, refreshToken, profile, done) => {
     try {
-      // Check if user already exists
-      let user = await UserModel.findByGoogleId(profile.id);
+      console.log('Google OAuth profile received:', {
+        id: profile.id,
+        email: profile.emails?.[0]?.value,
+        name: profile.displayName,
+        avatar: profile.photos?.[0]?.value
+      });
+
+      // Find or create user
+      const user = await UserModel.findOrCreateGoogleUser(
+        profile.id,
+        profile.emails?.[0]?.value || '',
+        profile.displayName || '',
+        profile.photos?.[0]?.value
+      );
       
-      if (!user) {
-        // Create new user if doesn't exist
-        user = await UserModel.createFromGoogle({
-          googleId: profile.id,
-          email: profile.emails?.[0]?.value || '',
-          name: profile.displayName || '',
-          username: profile.emails?.[0]?.value?.split('@')[0] || profile.id,
-          avatar: profile.photos?.[0]?.value || ''
-        });
-      }
-      
+      console.log('User found/created:', { id: user.id, username: user.username, name: user.name });
       return done(null, user);
     } catch (error) {
+      console.error('Google OAuth error:', error);
       return done(error);
     }
   }));

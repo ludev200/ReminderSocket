@@ -84,13 +84,13 @@ router.post('/logout', async (req, res) => {
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/auth/failure' }),
+  passport.authenticate('google', { failureRedirect: '/api/auth/failure' }),
   async (req, res) => {
     try {
       const user = req.user as any;
       
       if (!user) {
-        return res.redirect('/auth/failure');
+        return res.redirect('/api/auth/failure');
       }
 
       // Generate JWT token
@@ -103,10 +103,10 @@ router.get('/google/callback',
       await AuthService.createSession(user.id, token, expiresAt);
 
       // Redirect to frontend with token
-      res.redirect(`/auth/success?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
+      res.redirect(`/api/auth/success?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
     } catch (error) {
       console.error('Google callback error:', error);
-      res.redirect('/auth/failure');
+      res.redirect('/api/auth/failure');
     }
   }
 );

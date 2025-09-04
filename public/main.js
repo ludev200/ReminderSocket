@@ -7,10 +7,71 @@ const serverUrlInput = $("#serverUrl");
 const userIdInput = $("#userId");
 const list = $("#list");
 
+// Helpers
+function apiBase() {
+  return (serverUrlInput?.value?.trim() || "http://localhost:4000").replace(/\/$/, "");
+}
+
+// Register
+const registerBtn = $("#registerBtn");
+if (registerBtn) {
+  registerBtn.addEventListener("click", async () => {
+    const name = $("#regName").value.trim();
+    const username = $("#regUsername").value.trim();
+    const password = $("#regPassword").value.trim();
+    const out = $("#registerResult");
+    out.textContent = "";
+
+    if (!name || !username || !password) {
+      out.textContent = "Faltan campos";
+      return;
+    }
+
+    try {
+      const res = await fetch(`${apiBase()}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, username, password })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Error de registro');
+      out.textContent = 'Registro exitoso';
+    } catch (e) {
+      out.textContent = String(e.message || e);
+    }
+  });
+}
+
+// Login (form)
+const loginBtn = $("#loginBtn");
+if (loginBtn) {
+  loginBtn.addEventListener("click", async () => {
+    const username = $("#loginUsername").value.trim();
+    const password = $("#loginPassword").value.trim();
+    const out = $("#loginResult");
+    out.textContent = "";
+
+    try {
+      const user = await login(username, password);
+      out.textContent = `Bienvenido ${user.name} (${user.username})`;
+    } catch (e) {
+      out.textContent = String(e.message || e);
+    }
+  });
+}
+
+// Google login
+const googleBtn = $("#googleBtn");
+if (googleBtn) {
+  googleBtn.addEventListener("click", () => {
+    window.location.href = `${apiBase()}/api/auth/google`;
+  });
+}
+
 // Login function to get JWT token
 async function login(username, password) {
   try {
-    const url = serverUrlInput.value.trim() || "http://localhost:4000";
+    const url = apiBase();
     const response = await fetch(`${url}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -18,15 +79,13 @@ async function login(username, password) {
     });
     
     if (!response.ok) {
-      throw new Error('Login failed');
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.message || 'Login failed');
     }
     
     const data = await response.json();
     authToken = data.token;
-    
-    // Store token in localStorage
     localStorage.setItem('authToken', authToken);
-    
     return data.user;
   } catch (error) {
     console.error('Login error:', error);
@@ -38,7 +97,7 @@ async function login(username, password) {
 const connectBtn = $("#connectBtn");
 connectBtn.addEventListener("click", async () => {
   try {
-    const url = serverUrlInput.value.trim();
+    const url = apiBase();
     const username = userIdInput.value.trim();
     const password = prompt("Enter password for " + username);
     
@@ -111,7 +170,6 @@ function bindSocket(s) {
     `;
     list.prepend(li);
 
-    // Optional: Web Notifications
     if ("Notification" in window) {
       if (Notification.permission === "granted") {
         new Notification(data.title, { body: data.message });
@@ -129,7 +187,7 @@ sendBtn.addEventListener("click", async () => {
     return;
   }
 
-  const url = serverUrlInput.value.trim() || "http://localhost:4000";
+  const url = apiBase();
   const title = $("#title").value.trim();
   const message = $("#message").value.trim();
   const delaySeconds = Number($("#delay").value || 0);
@@ -155,6 +213,36 @@ sendBtn.addEventListener("click", async () => {
   }
 });
 
+// Logout
+const logoutBtn = document.querySelector('#logoutBtn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      const url = apiBase();
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        await fetch(`${url}/api/auth/logout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        }).catch(() => {});
+      }
+    } finally {
+      localStorage.removeItem('authToken');
+      authToken = null;
+      if (socket) {
+        try { socket.disconnect(); } catch {}
+        socket = null;
+      }
+      connStatus.textContent = 'Desconectado';
+      connStatus.classList.remove('ok');
+      connStatus.classList.add('err');
+      const out = document.querySelector('#loginResult');
+      if (out) out.textContent = 'Sesión cerrada';
+    }
+  });
+}
+
 function escapeHtml(str) {
   return String(str)
     .replaceAll("&", "&amp;")
@@ -164,7 +252,6 @@ function escapeHtml(str) {
     .replaceAll("'", "&#039;");
 }
 
-// Check for existing token on page load
 window.addEventListener('load', () => {
   const savedToken = localStorage.getItem('authToken');
   if (savedToken) {
