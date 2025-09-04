@@ -17,7 +17,7 @@ export function configurePassport() {
       done(error, null);
     }
   });
-
+  
   // Google OAuth Strategy
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID!,
@@ -25,6 +25,7 @@ export function configurePassport() {
     callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:4000/api/auth/google/callback',
     scope: ['profile', 'email']
   }, async (accessToken, refreshToken, profile, done) => {
+    
     try {
       console.log('Google OAuth profile received:', {
         id: profile.id,
@@ -32,7 +33,7 @@ export function configurePassport() {
         name: profile.displayName,
         avatar: profile.photos?.[0]?.value
       });
-
+      
       // Find or create user
       const user = await UserModel.findOrCreateGoogleUser(
         profile.id,

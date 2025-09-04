@@ -9,7 +9,8 @@ const list = $("#list");
 
 // Helpers
 function apiBase() {
-  return (serverUrlInput?.value?.trim() || "http://localhost:4000").replace(/\/$/, "");
+  return (serverUrlInput?.value?.trim() || "https://1acbab9627b882f4246700ca745780c2.serveo.net").replace(/\/$/, "");
+  // return (serverUrlInput?.value?.trim() || "http://localhost:4000").replace(/\/$/, "");
 }
 
 // Register

@@ -1,0 +1,7 @@
+POST http://localhost:4000/api/push/broadcast
+content-type: application/json
+
+{
+    "title": "Buenos dias 😎",
+    "message": "todo fino"
+}

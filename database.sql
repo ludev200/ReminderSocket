@@ -7,7 +7,7 @@ CREATE TABLE `user`
   `name` Varchar(50) NOT NULL,
   `username` Varchar(20) DEFAULT NULL,
   `password` Text DEFAULT NULL,
-  `google_id` Varchar(255) DEFAULT NULL.,
+  `google_id` Varchar(255) DEFAULT NULL,
   `profile_picture` Varchar(255) DEFAULT NULL
 )
 ;
